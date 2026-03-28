@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name: Tier Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Background image with blur - loads from local file */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('background.jpg'); /* Will try .jpg first */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .entries {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .entry {
+            background: white;
+            border-left: 5px solid;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .entry:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .tier {
+            font-size: 0.9em;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* Tier colors */
+        .tier-S { background: #ffd700; color: #8b6b00; border-left-color: #ffd700; }
+        .tier-A { background: #c0c0c0; color: #4a4a4a; border-left-color: #c0c0c0; }
+        .tier-B { background: #cd7f32; color: #4a2a0a; border-left-color: #cd7f32; }
+        .tier-C { background: #90be6d; color: #2d5a1a; border-left-color: #90be6d; }
+        .tier-D { background: #577590; color: #e9ecef; border-left-color: #577590; }
+        .tier-F { background: #f94144; color: #fff; border-left-color: #f94144; }
+        .tier-default { background: #6c757d; color: white; border-left-color: #6c757d; }
+
+        .info {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Custom scrollbar */
+        .entries::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .entries::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .entries::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .entries::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .stats {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .refresh-btn {
+            display: inline-block;
+            background: #2196f3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: background 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .refresh-btn:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 CC Skywars Tierlist</h1>
+
+        <div id="status" class="status loading">
+            ⏳ Loading data file...
+        </div>
+
+        <div id="entriesContainer" class="entries"></div>
+
+        <div id="stats" class="stats" style="display: none;"></div>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="refresh-btn" onclick="loadData()">🔄 Refresh Data</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to get tier class
+        function getTierClass(tier) {
+            const tierUpper = tier.toUpperCase();
+            switch(tierUpper) {
+                case 'S': return 'tier-S';
+                case 'A': return 'tier-A';
+                case 'B': return 'tier-B';
+                case 'C': return 'tier-C';
+                case 'D': return 'tier-D';
+                case 'F': return 'tier-F';
+                default: return 'tier-default';
+            }
+        }
+
+        // Function to display entries
+        function displayEntries(entries) {
+            const entriesContainer = document.getElementById('entriesContainer');
+            const statsDiv = document.getElementById('stats');
+
+            if (entries.length === 0) {
+                entriesContainer.innerHTML = '<div class="info">No valid entries found. Make sure your data file has entries like "name: tier" on each line.</div>';
+                statsDiv.style.display = 'none';
+                return;
+            }
+
+            // Clear container
+            entriesContainer.innerHTML = '';
+
+            // Display each entry
+            entries.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = `entry ${getTierClass(entry.tier)}`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                nameSpan.textContent = entry.name;
+
+                const tierSpan = document.createElement('span');
+                tierSpan.className = 'tier';
+                tierSpan.textContent = entry.tier.toUpperCase();
+
+                entryDiv.appendChild(nameSpan);
+                entryDiv.appendChild(tierSpan);
+                entriesContainer.appendChild(entryDiv);
+            });
+
+            // Show statistics
+            const tierCounts = {};
+            entries.forEach(entry => {
+                const tier = entry.tier.toUpperCase();
+                tierCounts[tier] = (tierCounts[tier] || 0) + 1;
+            });
+
+            const statsText = Object.entries(tierCounts)
+                .map(([tier, count]) => `${tier}: ${count}`)
+                .join(' | ');
+
+            statsDiv.innerHTML = `📈 Total Entries: ${entries.length} | ${statsText}`;
+            statsDiv.style.display = 'block';
+        }
+
+        // Function to parse the file content
+        function parseFile(content) {
+            const lines = content.split(/\r?\n/);
+            const entries = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+
+                // Skip empty lines
+                if (line === '') continue;
+
+                // Check if line contains colon
+                const colonIndex = line.indexOf(':');
+                if (colonIndex === -1) {
+                    console.warn(`Line ${i + 1}: Invalid format (missing colon): "${line}"`);
+                    continue;
+                }
+
+                // Extract name and tier
+                let name = line.substring(0, colonIndex).trim();
+                let tier = line.substring(colonIndex + 1).trim();
+
+                // Validate
+                if (name === '') {
+                    console.warn(`Line ${i + 1}: Empty name`);
+                    continue;
+                }
+
+                if (tier === '') {
+                    console.warn(`Line ${i + 1}: Empty tier`);
+                    continue;
+                }
+
+                entries.push({
+                    name: name,
+                    tier: tier
+                });
+            }
+
+            return entries;
+        }
+
+        // Function to load the data file
+        async function loadData() {
+            const statusDiv = document.getElementById('status');
+            const entriesContainer = document.getElementById('entriesContainer');
+            const statsDiv = document.getElementById('stats');
+
+            statusDiv.className = 'status loading';
+            statusDiv.innerHTML = '⏳ Loading data file...';
+            entriesContainer.innerHTML = '';
+            statsDiv.style.display = 'none';
+
+            try {
+                // Try to fetch the 'data' file (no extension)
+                const response = await fetch('data');
+
+                if (!response.ok) {
+                    throw new Error(`Could not load data file (HTTP ${response.status}). Make sure a file named 'data' exists in the same directory.`);
+                }
+
+                const content = await response.text();
+                const entries = parseFile(content);
+
+                displayEntries(entries);
+
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `✅ Successfully loaded data file with ${entries.length} entries`;
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `❌ ${error.message}<br><small>Make sure a file named 'data' (no extension) exists in the same directory as this HTML file.</small>`;
+                entriesContainer.innerHTML = '<div class="info">📁 Please create a file named "data" with entries in format:<br><strong>name: tier</strong><br><br>Example:<br>John: S<br>Sarah: A<br>Mike: B</div>';
+                statsDiv.style.display = 'none';
+            }
+        }
+
+        // Function to try loading background image with different extensions
+        function loadBackgroundImage() {
+            const extensions = ['bg.jpg', 'bg.jpeg', 'bg.png', 'bg.heic'];
+            const body = document.body;
+
+            // Try each extension
+            extensions.forEach(ext => {
+                const img = new Image();
+                img.onload = () => {
+                    // If image loads successfully, set the background
+                    body.style.setProperty('background-image', `url('${ext}')`, 'important');
+                    // Update the pseudo-element
+                    const style = document.createElement('style');
+                    style.textContent = `body::before { background-image: url('${ext}') !important; }`;
+                    document.head.appendChild(style);
+                };
+                img.src = ext;
+            });
+        }
+
+        // Load data when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            loadBackgroundImage();
+        });
+    </script>
+</body>
+</html>

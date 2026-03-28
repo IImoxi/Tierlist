@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier List - S to D Rankings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Background image with blur */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('background.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1400px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        /* Tier grid layout */
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Individual tier column */
+        .tier-column {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .tier-column:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Tier header */
+        .tier-header {
+            padding: 20px;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .tier-header span {
+            font-size: 0.5em;
+            display: block;
+            margin-top: 5px;
+            font-weight: normal;
+        }
+
+        /* Tier colors */
+        .tier-S .tier-header { background: linear-gradient(135deg, #f5f5f5, #bdccd8); color: #4a596a; }
+        .tier-A .tier-header { background: linear-gradient(135deg, #fff454, #ffb800); color: #4a596a; }
+        .tier-B .tier-header { background: linear-gradient(135deg, #d885ff, #9a5ff4); color: #4a596a; }
+        .tier-C .tier-header { background: linear-gradient(135deg, #19ef6d, #24a63e); color: #4a596a; }
+        .tier-D .tier-header { background: linear-gradient(135deg, #a66424, #7c3d00); color: white; }
+
+        /* Names container */
+        .names-container {
+            padding: 15px;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Individual name item */
+        .name-item {
+            background: b;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #fff;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            word-break: break-word;
+        }
+
+        .name-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Empty state */
+        .empty-tier {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        /* Statistics */
+        .stats {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Tierlist</h1>
+        <div class="subtitle"> ✅ Tested |❓ Estimated</div>
+
+        <div class="tier-grid" id="tierGrid">
+            <!-- Tiers will be populated here -->
+        </div>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <script>
+    // Tier order from left to right
+    const TIER_ORDER = [ 'S', 'A', 'B', 'C', 'D' ];
+
+    // YOUR DATA - EDIT THIS SECTION
+    const DATA = `❔ icxrrent: S
+❔ ITNDnd: S
+❔ nLema: S
+❔ IImoxi: A
+❔ Zirenaa: A
+❔ Blueaspen25: B
+❔ Joshlauder00: B
+❔ OfficialOwly: B`;
+
+    let tierData = {};
+
+    // Initialize data
+    function initData() {
+        tierData = {};
+        TIER_ORDER.forEach(tier => {
+            tierData[tier] = [];
+        });
+
+        const lines = DATA.split(/\r?\n/);
+        for (let line of lines) {
+            line = line.trim();
+            if (line === '') continue;
+
+            const colonIndex = line.indexOf(':');
+            if (colonIndex === -1) continue;
+
+            let name = line.substring(0, colonIndex).trim();
+            let tier = line.substring(colonIndex + 1).trim().toUpperCase();
+
+            if (name && TIER_ORDER.includes(tier)) {
+                tierData[tier].push(name);
+            }
+        }
+
+        // Sort names alphabetically within each tier
+        for (let tier in tierData) {
+            tierData[tier].sort((a, b) => a.localeCompare(b));
+        }
+    }
+
+        // Render the tier grid
+        function renderTiers() {
+            const grid = document.getElementById('tierGrid');
+            grid.innerHTML = '';
+
+            let totalItems = 0;
+
+            TIER_ORDER.forEach(tier => {
+                const names = tierData[tier] || [];
+                totalItems += names.length;
+
+                const column = document.createElement('div');
+                column.className = `tier-column tier-${tier}`;
+
+                // Tier header
+                const header = document.createElement('div');
+                header.className = 'tier-header';
+                header.innerHTML = `${tier}<span>${names.length} item${names.length !== 1 ? 's' : ''}</span>`;
+
+                // Names container
+                const namesContainer = document.createElement('div');
+                namesContainer.className = 'names-container';
+
+                if (names.length === 0) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-tier';
+                    emptyDiv.textContent = 'No entries';
+                    namesContainer.appendChild(emptyDiv);
+                } else {
+                    names.forEach(name => {
+                        const nameItem = document.createElement('div');
+                        nameItem.className = 'name-item';
+                        nameItem.textContent = name;
+                        namesContainer.appendChild(nameItem);
+                    });
+                }
+
+                column.appendChild(header);
+                column.appendChild(namesContainer);
+                grid.appendChild(column);
+            });
+
+            // Update stats
+            const statsDiv = document.getElementById('stats');
+            const tierCounts = TIER_ORDER.map(tier => `${tier}: ${tierData[tier].length}`).join(' | ');
+            statsDiv.innerHTML = `📊 Total Items: <strong>${totalItems}</strong> | ${tierCounts}`;
+        }
+
+        // Open editor modal
+        function openEditor() {
+            const modal = document.getElementById('editorModal');
+            const editor = document.getElementById('dataEditor');
+
+            // Convert current data to string format
+            let dataString = '';
+            for (let tier of TIER_ORDER) {
+                tierData[tier].forEach(name => {
+                    dataString += `${name}: ${tier}\n`;
+                });
+            }
+            editor.value = dataString.trim();
+
+            modal.classList.add('active');
+        }
+
+        // Close editor modal
+        function closeEditor() {
+            document.getElementById('editorModal').classList.remove('active');
+        }
+
+        // Save data from editor
+        function saveData() {
+            const editor = document.getElementById('dataEditor');
+            const dataString = editor.value;
+
+            if (!dataString.trim()) {
+                alert('Please enter some data!');
+                return;
+            }
+
+            loadDataFromString(dataString);
+            renderTiers();
+
+            // Save to localStorage
+            localStorage.setItem('tierListData', dataString);
+
+            closeEditor();
+        }
+
+        // Load background image
+        function loadBackground() {
+            const img = new Image();
+            img.onload = () => {
+                const style = document.createElement('style');
+                style.textContent = `body::before { background-image: url('bg.jpg') !important; }`;
+                document.head.appendChild(style);
+            };
+            img.src = 'bg.jpg';
+        }
+
+        // Initialize on page load
+        initData();
+        renderTiers();
+        loadBackground();
+
+        // Make functions globally available
+        window.openEditor = openEditor;
+        window.closeEditor = closeEditor;
+        window.saveData = saveData;
+    </script>
+</body>
+</html>
