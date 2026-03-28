@@ -60,6 +60,13 @@
             font-size: 0.85em;
         }
 
+        .subtext {
+            text-align: center;
+            color: black;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
         /* Tier grid layout - responsive columns */
         .tier-grid {
             display: flex;
@@ -72,7 +79,7 @@
         /* Individual tier column - will wrap on mobile */
         .tier-column {
             flex: 1;
-            min-width: 150px;
+            min-width: 175px;
             background: rgba(0, 0, 0, 0.75);
             border-radius: 12px;
             overflow: hidden;
@@ -183,8 +190,8 @@
 <body>
     <div class="container">
         <h1>ODI SW Tierlist</h1>
-        <div class="subtitle">Cubecraft Skywars Tierlist by IImoxi</div>
-        <div class="subtitle">✅ Tested | ❓ Estimated</div>
+        <div class="subtext">Cubecraft Skywars Tierlist by IImoxi</div>
+        <div class="subtitle">✅ Tested | ❓ Estimated | Columns are ordered A -> Z.</div>
 
         <div class="tier-grid" id="tierGrid">
             <!-- Tiers will be populated here -->
@@ -199,11 +206,14 @@
     const DATA = `❓ icxrrent: S
 ❓ ITNDnd: S
 ❓ nLema: S
+❓ Ninja Pig2863: A
 ❓ IImoxi: A
 ❓ Zirenaa: A
 ❓ Blueaspen25: B
 ❓ Joshlauder00: B
 ❓ OfficialOwly: B
+❓ YoShady: B
+❓ Badflame94: B
 ❓ xVonte: B
 ✅ Nons: D`;
 
