@@ -37,40 +37,43 @@
         }
 
         .container {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.33);
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 1400px;
-            width: 100%;
-            backdrop-filter: blur(10px);
+            width: 80vw;
+            backdrop-filter: blur(32px);
         }
 
         h1 {
             text-align: center;
-            color: white;
+            color: black;
             margin-bottom: 8px;
-            font-size: 1.8em;
+            font-size: 2.0em;
         }
 
         .subtitle {
             text-align: center;
-            color: rgba(255, 255, 255, 0.8);
+            color: black;
             margin-bottom: 20px;
             font-size: 0.85em;
         }
 
-        /* Tier grid layout - responsive */
+        /* Tier grid layout - responsive columns */
         .tier-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            display: flex;
+            flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 20px;
+            justify-content: center;
         }
 
-        /* Individual tier column */
+        /* Individual tier column - will wrap on mobile */
         .tier-column {
-            background: rgba(0, 0, 0, 0.5);
+            flex: 1;
+            min-width: 150px;
+            background: rgba(0, 0, 0, 0.75);
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -82,7 +85,7 @@
             text-align: center;
             font-size: 1.8em;
             font-weight: bold;
-            color: white;
+            color: black;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
@@ -140,7 +143,7 @@
             padding-top: 15px;
             margin-top: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            color: black;
             font-size: 0.85em;
         }
 
@@ -148,70 +151,16 @@
             color: #ffd700;
         }
 
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            body {
-                padding: 8px;
-            }
-
+        @media (max-width: 769px) {
             .container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 1.4em;
-            }
-
-            .subtitle {
-                font-size: 0.75em;
-                margin-bottom: 15px;
-            }
-
-            .tier-grid {
-                gap: 8px;
-            }
-
-            .tier-header {
-                padding: 8px 4px;
-                font-size: 1.3em;
-            }
-
-            .tier-header span {
-                font-size: 0.55em;
-            }
-
-            .names-container {
-                padding: 6px;
-                min-height: 200px;
-                max-height: 300px;
-            }
-
-            .name-item {
-                padding: 6px 6px;
-                font-size: 0.75em;
-                margin-bottom: 4px;
-            }
-
-            .stats {
-                font-size: 0.75em;
-                padding-top: 12px;
+                width: 95vw;
             }
         }
 
-        /* Small phones */
-        @media (max-width: 480px) {
-            .tier-header {
-                font-size: 1.1em;
-                padding: 6px 2px;
-            }
-
-            .name-item {
-                font-size: 0.7em;
-                padding: 5px 4px;
-            }
-
-            .names-container {
-                max-height: 250px;
+        @media (min-width: 770px) {
+            .tier-column {
+                min-width: 150px;
+                flex: 1;
             }
         }
 
@@ -233,7 +182,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Tierlist</h1>
+        <h1>ODI SW Tierlist</h1>
+        <div class="subtitle">Cubecraft Skywars Tierlist by IImoxi</div>
         <div class="subtitle">✅ Tested | ❓ Estimated</div>
 
         <div class="tier-grid" id="tierGrid">
@@ -244,10 +194,8 @@
     </div>
 
     <script>
-    // Tier order from left to right
     const TIER_ORDER = ['S', 'A', 'B', 'C', 'D'];
 
-    // YOUR DATA - EDIT THIS SECTION
     const DATA = `❓ icxrrent: S
 ❓ ITNDnd: S
 ❓ nLema: S
@@ -255,7 +203,9 @@
 ❓ Zirenaa: A
 ❓ Blueaspen25: B
 ❓ Joshlauder00: B
-❓ OfficialOwly: B`;
+❓ OfficialOwly: B
+❓ xVonte: B
+✅ Nons: D`;
 
     let tierData = {};
 
@@ -306,7 +256,7 @@
             // Tier header
             const header = document.createElement('div');
             header.className = 'tier-header';
-            header.innerHTML = `${tier}<span>${names.length} item${names.length !== 1 ? 's' : ''}</span>`;
+            header.innerHTML = `${tier}<span></span>`;
 
             // Names container
             const namesContainer = document.createElement('div');
@@ -339,23 +289,9 @@
         }
     }
 
-    // Load background image function
-    function loadBackground() {
-        const img = new Image();
-        img.onload = () => {
-            // Background already set in CSS
-            console.log('Background loaded');
-        };
-        img.onerror = () => {
-            console.log('Background image not found, using default');
-        };
-        img.src = 'bg.jpg';
-    }
-
     // Initialize on page load
     initData();
     renderTiers();
-    loadBackground();
     </script>
 </body>
 </html>
