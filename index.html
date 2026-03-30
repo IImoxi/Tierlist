@@ -116,6 +116,7 @@
         .tier-B .tier-header { background: linear-gradient(135deg, #e0b3ff, #b77cff); color: #2c3e50; }
         .tier-C .tier-header { background: linear-gradient(135deg, #5fdc7a, #2ecc71); color: #2c3e50; }
         .tier-D .tier-header { background: linear-gradient(135deg, #c97e3a, #a05e15); color: white; }
+        .tier-H .tier-header { background: linear-gradient(135deg, #501010, #000000); color: #996060; }
 
         /* Names container */
         .names-container {
@@ -198,7 +199,7 @@
     <div class="container">
         <h1>ODI SW Tierlist</h1>
         <div class="subtext">Cubecraft Skywars Tierlist by IImoxi</div>
-        <div class="subtitle">✅ Tested | ❓ Estimated | Columns are ordered A -> Z.</div>
+        <div class="subtitle">✅ Tested | ❓ Estimated | Players are ordered alphabetically!</div>
 
         <div class="tier-grid" id="tierGrid">
             <!-- Tiers will be populated here -->
@@ -208,21 +209,28 @@
     </div>
 
     <script>
-    const TIER_ORDER = ['S', 'A', 'B', 'C', 'D'];
+    const TIER_ORDER = ['S', 'A', 'B', 'C', 'D', 'H'];
 
     const DATA = `❓ icxrrent: S
-❓ ITNDnd: S
+❓ ITNDnd: A
 ❓ nLema: S
 ❓ Ninja Pig2863: A
 ❓ IImoxi: A
 ❓ Zirenaa: A
+❓ Endermanxbox479: A
 ❓ Waranjs: A
+❓ Alzeem: A
 ❓ Blueaspen25: B
 ❓ Joshlauder00: B
 ❓ OfficialOwly: B
 ❓ YoShady: B
 ❓ Badflame94: B
 ❓ xVonte: B
+Ninja Pig2863: H
+Zirenaa: H
+Joshlauder01: H
+Blueaspen26: H
+Endermanxbox479: H
 ✅ Nons: D`;
 
     let tierData = {};
@@ -274,7 +282,18 @@
             // Tier header
             const header = document.createElement('div');
             header.className = 'tier-header';
-            header.innerHTML = `${tier}<span></span>`;
+            const customTierNames = {
+                'S': 'S',
+                'A': 'A',
+                'B': 'B',
+                'C': 'C',
+                'D': 'D',
+                'H': 'Hacker (Joke)'
+            };
+
+            // Use custom name if exists, otherwise use original tier
+            const displayName = customTierNames[tier] || tier;
+            header.innerHTML = `${displayName}`;
 
             // Names container
             const namesContainer = document.createElement('div');
